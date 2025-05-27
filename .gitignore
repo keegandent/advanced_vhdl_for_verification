@@ -1,0 +1,9 @@
+*.jou
+*.log
+*.str
+/projects/*/*
+!/projects/*/*.tcl
+sources/imports/*
+
+# Always keep the keeps
+!.keep
