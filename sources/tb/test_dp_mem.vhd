@@ -4,11 +4,15 @@ use ieee.std_logic_1164.all;
 entity dp_mem_tb is
 end dp_mem_tb;
 
-architecture Behavior of dp_mem_tb is
+architecture tb of dp_mem_tb is
     constant PERIOD_A:      time                            := 10 ns;
+    constant SETUP_TIME:    time                            := 2 ns;
+    constant MEAS_TIME:     time                            := 6 ns;
+    signal initalized:      boolean                         := false;
 
     signal clk_a, we_a:     std_logic                       := '0';
-    signal addr_a, addr_b:  std_logic_vector(3 downto 0)    := (others => '0');
+    -- makes it easier to see memory initialization in post-synthesis timing sim
+    signal addr_a, addr_b:  std_logic_vector(3 downto 0)    := (others => 'U');
     signal din_a, dout_b:   std_logic_vector(15 downto 0)   := (others => '0');
 
     component dp_mem is
@@ -42,10 +46,14 @@ begin
 
     clk_a <= not clk_a after (PERIOD_A / 2);
 
-    tb: process is
+    stim: process is
     begin
-        wait for PERIOD_A;
+        if not initalized then
+            wait for 10 * PERIOD_A;
+        end if;
+        initalized <= true;
 
+        wait for (0.5 * PERIOD_A - SETUP_TIME);
         we_a <= '1';
         addr_a <= x"0";
         din_a <= x"DEAD";
@@ -62,16 +70,33 @@ begin
         we_a <= '0';
 
         addr_b <= x"0";
-        wait for (PERIOD_A);
-        assert dout_b = x"DEAD";
+        wait for PERIOD_A;
         addr_b <= x"1";
-        wait for (PERIOD_A);
-        assert dout_b = x"BEEF";
+        wait for PERIOD_A;
         addr_b <= x"2";
-        wait for (PERIOD_A);
-        assert dout_b = x"BAAD";
+        wait for PERIOD_A;
         addr_b <= x"3";
-        wait for (PERIOD_A);
-        assert dout_b = x"F00D";
+        wait for PERIOD_A;
+
+        wait for (1.5 * PERIOD_A + SETUP_TIME);
     end process;
-end Behavior;
+
+    meas: process is
+    begin
+        if not initalized then
+            wait for (10 * PERIOD_A);
+        end if;
+
+        wait for (5.5 * PERIOD_A + MEAS_TIME);
+
+        assert dout_b = x"DEAD";
+        wait for PERIOD_A;
+        assert dout_b = x"BEEF";
+        wait for PERIOD_A;
+        assert dout_b = x"BAAD";
+        wait for PERIOD_A;
+        assert dout_b = x"F00D";
+
+        wait for (1.5 * PERIOD_A - MEAS_TIME);
+    end process;
+end tb;

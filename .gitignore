@@ -1,6 +1,7 @@
 *.jou
 *.log
 *.str
+.Xil/
 /projects/*/*
 !/projects/*/*.tcl
 sources/imports/*

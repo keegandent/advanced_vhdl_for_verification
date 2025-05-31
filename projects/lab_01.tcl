@@ -32,6 +32,7 @@
 #    "/home/keegan/workspace/personal/advanced_vhdl_for_verification/sources/imports/blkmemdp_pkg_v6_3.vhd"
 #    "/home/keegan/workspace/personal/advanced_vhdl_for_verification/sources/imports/blkmemdp_v6_3.vhd"
 #    "/home/keegan/workspace/personal/advanced_vhdl_for_verification/sources/imports/dp_mem.vhd"
+#    "/home/keegan/workspace/personal/advanced_vhdl_for_verification/sources/rtl/dp_mem_inferred.vhd"
 #    "/home/keegan/workspace/personal/advanced_vhdl_for_verification/sources/tb/test_dp_mem.vhd"
 #
 #*****************************************************************************************
@@ -45,6 +46,7 @@ proc checkRequiredFiles { origin_dir} {
  "[file normalize "$origin_dir/../sources/imports/blkmemdp_pkg_v6_3.vhd"]"\
  "[file normalize "$origin_dir/../sources/imports/blkmemdp_v6_3.vhd"]"\
  "[file normalize "$origin_dir/../sources/imports/dp_mem.vhd"]"\
+ "[file normalize "$origin_dir/../sources/rtl/dp_mem_inferred.vhd"]"\
  "[file normalize "$origin_dir/../sources/tb/test_dp_mem.vhd"]"\
   ]
   foreach ifile $files {
@@ -176,6 +178,7 @@ set files [list \
  [file normalize "${origin_dir}/../sources/imports/blkmemdp_pkg_v6_3.vhd"] \
  [file normalize "${origin_dir}/../sources/imports/blkmemdp_v6_3.vhd"] \
  [file normalize "${origin_dir}/../sources/imports/dp_mem.vhd"] \
+ [file normalize "${origin_dir}/../sources/rtl/dp_mem_inferred.vhd"] \
 ]
 add_files -norecurse -fileset $obj $files
 
@@ -205,6 +208,11 @@ set file [file normalize $file]
 set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
 set_property -name "file_type" -value "VHDL" -objects $file_obj
 
+set file "$origin_dir/../sources/rtl/dp_mem_inferred.vhd"
+set file [file normalize $file]
+set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
+set_property -name "file_type" -value "VHDL" -objects $file_obj
+
 
 # Set 'sources_1' fileset file properties for local files
 # None
@@ -213,6 +221,7 @@ set_property -name "file_type" -value "VHDL" -objects $file_obj
 set obj [get_filesets sources_1]
 set_property -name "dataflow_viewer_settings" -value "min_width=16" -objects $obj
 set_property -name "top" -value "dp_mem" -objects $obj
+set_property -name "top_auto_set" -value "0" -objects $obj
 
 # Create 'constrs_1' fileset (if not found)
 if {[string equal [get_filesets -quiet constrs_1] ""]} {
@@ -289,6 +298,7 @@ if { $obj != "" } {
 set obj [get_runs synth_1]
 set_property -name "auto_incremental_checkpoint" -value "1" -objects $obj
 set_property -name "strategy" -value "Vivado Synthesis Defaults" -objects $obj
+set_property -name "steps.synth_design.args.incremental_mode" -value "off" -objects $obj
 
 # set the current synth run
 current_run -synthesis [get_runs synth_1]
